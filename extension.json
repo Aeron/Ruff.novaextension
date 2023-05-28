@@ -1,0 +1,99 @@
+{
+    "identifier": "cc.aeron.nova-ruff",
+    "name": "Ruff",
+    "organization": "Aeron",
+    "description": "Ruff, an extremely fast Python linter, written in Rust, for Nova.",
+    "version": "1.0.0",
+    "categories": ["issues", "commands"],
+    "repository": "https://github.com/Aeron/Ruff.novaextension",
+    "bugs": "https://github.com/Aeron/Ruff.novaextension/issues",
+    "license": "BSD-2-Clause-Patent",
+    "main": "main.js",
+    "activationEvents": [
+        "onLanguage:python"
+    ],
+    "entitlements": {
+        "process": true,
+        "filesystem": "readonly"
+    },
+    "commands": {
+        "editor": [
+            {
+                "title": "Check with Ruff",
+                "command": "checkWithRuff",
+                "shortcut": "shift-cmd-8",
+                "filters": {
+                    "syntaxes": ["python"]
+                }
+            }
+        ]
+    },
+    "issueMatchers": {
+        "ruff": {
+            "pattern": {
+                "regexp": "^::(\\w+)\\stitle=.+,file=.+,line=(\\d+),col=(\\d+),endLine=(\\d+),endColumn=(\\d+)::.+:\\d+:\\s(\\w+)\\s(.*)",
+                "message": 7,
+                "code": 6,
+                "line": 2,
+                "column": 3,
+                "endLine": 4,
+                "endColumn": 5,
+                "severity": 1
+            }
+        }
+    },
+    "config": [
+        {
+            "key": "cc.aeron.nova-ruff.executablePath",
+            "title": "Executable Path",
+            "description": "Path to the Ruff executable.",
+            "type": "path",
+            "default": "/usr/local/bin/ruff"
+        },
+        {
+            "key": "cc.aeron.nova-ruff.commandArguments",
+            "title": "Command Arguments",
+            "description": "Additional arguments. The --format and --quiet options are always set.",
+            "type": "string",
+            "default": null
+        },
+        {
+            "key": "cc.aeron.nova-ruff.checkMode",
+            "title": "Check Mode",
+            "description": "An event on which to perform a check.",
+            "type": "enum",
+            "values": [
+                ["onChange", "On a file change"],
+                ["onSave", "On a file save"],
+                ["-", "Command only"]
+            ],
+            "default": "onChange"
+        }
+    ],
+    "configWorkspace": [
+        {
+            "key": "cc.aeron.nova-ruff.executablePath",
+            "title": "Executable Path",
+            "description": "Path to the Ruff executable.",
+            "type": "path",
+            "placeholder": "/usr/local/bin/ruff"
+        },
+        {
+            "key": "cc.aeron.nova-ruff.commandArguments",
+            "title": "Command Arguments",
+            "description": "Additional arguments. The --format and --quiet options are always set.",
+            "type": "string"
+        },
+        {
+            "key": "cc.aeron.nova-ruff.checkMode",
+            "title": "Check Mode",
+            "description": "An event on which to perform a check.",
+            "type": "enum",
+            "values": [
+                ["onChange", "On a file change"],
+                ["onSave", "On a file save"],
+                ["-", "Command only"]
+            ]
+        }
+    ]
+}
