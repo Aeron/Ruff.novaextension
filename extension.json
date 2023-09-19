@@ -3,7 +3,7 @@
     "name": "Ruff",
     "organization": "Aeron",
     "description": "Ruff, an extremely fast Python linter, written in Rust, for Nova.",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "categories": ["issues", "commands"],
     "repository": "https://github.com/Aeron/Ruff.novaextension",
     "bugs": "https://github.com/Aeron/Ruff.novaextension/issues",
@@ -22,6 +22,22 @@
                 "title": "Check with Ruff",
                 "command": "checkWithRuff",
                 "shortcut": "shift-cmd-8",
+                "filters": {
+                    "syntaxes": ["python"]
+                }
+            },
+            {
+                "title": "Fix Ruff Violations",
+                "command": "fixRuffViolations",
+                "shortcut": "shift-cmd-opt-8",
+                "filters": {
+                    "syntaxes": ["python"]
+                }
+            },
+            {
+                "title": "Organize Imports with Ruff",
+                "command": "ruffOrganizeImports",
+                "shortcut": "shift-opt-O",
                 "filters": {
                     "syntaxes": ["python"]
                 }
@@ -74,14 +90,14 @@
         {
             "key": "cc.aeron.nova-ruff.executablePath",
             "title": "Executable Path",
-            "description": "Path to the Ruff executable.",
+            "description": "Path to the Ruff executable. Leave blank to use the extension default.",
             "type": "path",
             "placeholder": "/usr/local/bin/ruff"
         },
         {
             "key": "cc.aeron.nova-ruff.commandArguments",
             "title": "Command Arguments",
-            "description": "Additional arguments. The --format and --quiet options are always set.",
+            "description": "Additional arguments. The --format and --quiet options are always set. Leave blank to use the extension default.",
             "type": "string"
         },
         {

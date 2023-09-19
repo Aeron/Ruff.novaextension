@@ -4,7 +4,7 @@ class IssuesProvider {
         this.issueCollection = issueCollection;
     }
 
-    async getProcess() {
+    async getProcess(fix=null) {
         const executablePath = nova.path.expanduser(this.config.get("executablePath"));
         const commandArguments = this.config.get("commandArguments");
         const defaultOptions = ["--format=github", "--quiet", "-"];
@@ -22,6 +22,12 @@ class IssuesProvider {
                 .split(" ")
                 .map((option) => option.trim())
                 .filter((option) => option !== " ");
+        }
+
+        if (fix) {
+            options.push("--select")
+            options.push(fix)
+            options.push("--fix");
         }
 
         options = [...options, ...defaultOptions].filter((option) => option !== "");
@@ -49,7 +55,6 @@ class IssuesProvider {
 
         const textRange = new Range(0, editor.document.length);
         const content = editor.document.getTextInRange(textRange);
-        const filePath = nova.workspace.relativizePath(editor.document.path);
 
         const parser = new IssueParser("ruff");
 
@@ -63,7 +68,9 @@ class IssuesProvider {
         process.onStdout((output) => parser.pushLine(output));
         process.onStderr((error) => console.error(error));
         process.onDidExit((status) => {
-            console.info("Checking " + filePath);
+            if (editor.document.path) {
+                console.info("Checking " + editor.document.path);
+            }
 
             // NOTE: Nova version 1.2 and prior has a known bug
             if (nova.version[0] === 1 && nova.version[1] <= 2) {
@@ -77,6 +84,49 @@ class IssuesProvider {
 
             resolve(parser.issues);
             parser.clear();
+        });
+
+        console.info("Running " + process.command + " " + process.args.join(" "));
+
+        process.start();
+
+        const writer = process.stdin.getWriter();
+
+        writer.ready.then(() => {
+            writer.write(content);
+            writer.close();
+        });
+    }
+
+    async fix(editor, select="ALL") {
+        if (editor.document.isEmpty) {
+            return;
+        }
+
+        const textRange = new Range(0, editor.document.length);
+        const content = editor.document.getTextInRange(textRange);
+
+        const process = await this.getProcess(select);
+
+        if (!process) {
+            return;
+        }
+
+        var fixedOutput = [];
+
+        process.onStdout((output) => fixedOutput.push(output));
+        process.onStderr((error) => console.error(error));
+        process.onDidExit((status) => {
+            if (editor.document.path) {
+                console.info("Fixing " + editor.document.path);
+            }
+
+            const newContent = fixedOutput.join("");
+            let result = editor.edit((edit) => {
+                if (newContent !== content) {
+                    edit.replace(textRange, newContent, InsertTextFormat.PlainText);
+                }
+            });
         });
 
         console.info("Running " + process.command + " " + process.args.join(" "));

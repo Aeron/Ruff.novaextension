@@ -34,4 +34,12 @@ exports.activate = function() {
             issueCollection.set(editor.document.uri, issues);
         });
     });
+
+    nova.commands.register("fixRuffViolations", (editor) => {
+        issuesProvider.fix(editor);
+    });
+
+    nova.commands.register("ruffOrganizeImports", (editor) => {
+        issuesProvider.fix(editor, "I001");
+    });
 }
