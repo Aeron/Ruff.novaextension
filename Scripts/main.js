@@ -1,14 +1,18 @@
 const Config = require("./config");
 const IssuesProvider = require("./provider");
+const Formatter = require("./Formatter");
 
 exports.activate = function() {
     const config = new Config();
     const issueCollection = new IssueCollection("ruff");
     const issuesProvider = new IssuesProvider(config, issueCollection);
+    const formatter = new Formatter(config);
 
     console.info("Executable path: " + config.get("executablePath"));
-    console.info("Command arguments: " + config.get("commandArguments"));
+    console.info("Command (check) arguments: " + config.get("commandArguments"));
     console.info("Check mode: " + config.get("checkMode"));
+    console.info("Command (format) arguments: " + config.get("commandFormatArguments"));
+    console.info("Format on save: " + config.get("formatOnSave"));
 
     var assistant = null;
 
@@ -34,4 +38,14 @@ exports.activate = function() {
             issueCollection.set(editor.document.uri, issues);
         });
     });
+
+    nova.workspace.onDidAddTextEditor((editor) => {
+        if (editor.document.syntax !== "python") return;
+        editor.onWillSave(formatter.getPromiseToFormat, formatter);
+    });
+
+    nova.commands.register("formatWithRuff", formatter.format, formatter);
+    nova.commands.register(
+        "formatWorkspaceWithRuff", formatter.formatWorkspace, formatter
+    );
 }

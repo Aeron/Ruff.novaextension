@@ -4,7 +4,7 @@
     "organization": "Aeron",
     "description": "Ruff, an extremely fast Python linter, written in Rust, for Nova.",
     "version": "1.0.1",
-    "categories": ["issues", "commands"],
+    "categories": ["issues", "commands", "formatters"],
     "repository": "https://github.com/Aeron/Ruff.novaextension",
     "bugs": "https://github.com/Aeron/Ruff.novaextension/issues",
     "license": "BSD-2-Clause-Patent",
@@ -25,6 +25,21 @@
                 "filters": {
                     "syntaxes": ["python"]
                 }
+            },
+            {
+                "title": "Format with Ruff",
+                "command": "formatWithRuff",
+                "shortcut": "cmd-shift-B",
+                "filters": {
+                    "syntaxes": ["python"]
+                }
+            }
+        ],
+        "extensions": [
+            {
+                "title": "Format Workspace with Ruff",
+                "command": "formatWorkspaceWithRuff",
+                "shortcut": "cmd-shift-opt-B"
             }
         ]
     },
@@ -52,7 +67,7 @@
         },
         {
             "key": "cc.aeron.nova-ruff.commandArguments",
-            "title": "Command Arguments",
+            "title": "Command (Check) Arguments",
             "description": "Additional arguments. The --output-format and --quiet options are always set.",
             "type": "string",
             "default": null
@@ -68,6 +83,19 @@
                 ["-", "Command only"]
             ],
             "default": "onChange"
+        },
+        {
+            "key": "cc.aeron.nova-ruff.commandFormatArguments",
+            "title": "Command (Format) Arguments",
+            "description": "Additional arguments. The --quiet option is always set. The --stdin-filename is set conditionally.",
+            "type": "string",
+            "default": null
+        },
+        {
+            "key": "cc.aeron.nova-ruff.formatOnSave",
+            "title": "Format on a file save",
+            "type": "boolean",
+            "default": true
         }
     ],
     "configWorkspace": [
@@ -80,7 +108,7 @@
         },
         {
             "key": "cc.aeron.nova-ruff.commandArguments",
-            "title": "Command Arguments",
+            "title": "Command (Check) Arguments",
             "description": "Additional arguments. The --output-format and --quiet options are always set.",
             "type": "string"
         },
@@ -94,6 +122,20 @@
                 ["onSave", "On a file save"],
                 ["-", "Command only"]
             ]
+        },
+        {
+            "key": "cc.aeron.nova-ruff.commandFormatArguments",
+            "title": "Command (Format) Arguments",
+            "description": "Additional arguments. The --quiet option is always set. The --stdin-filename is set conditionally.",
+            "type": "string",
+            "default": null
+        },
+        {
+            "key": "cc.aeron.nova-ruff.formatOnSave",
+            "title": "Format on a file save",
+            "type": "enum",
+            "values": [[-1, "Global"], [1, "Yes"], [0, "No"]],
+            "default": -1
         }
     ]
 }
