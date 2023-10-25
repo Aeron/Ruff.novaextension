@@ -1,7 +1,7 @@
 # Ruff Nova Extension
 
 It’s a stand-alone [Nova][nova-url] extension to use [Ruff][ruff-url], an extremely
-fast Python linter, written in Rust.
+fast Python linter (and formatter), written in Rust.
 
 [nova-url]: https://nova.app
 [ruff-url]: https://github.com/charliermarsh/ruff
@@ -20,9 +20,10 @@ configuration always overrides a global one.
 
 ### Options
 
-There are three options available to configure: executable path, command arguments,
-and check mode. By default, the executable path is `/usr/local/bin/ruff`, with
-no additional arguments, and checking on changing.
+There are few options available to configure: executable path, check command arguments,
+and check mode, format command arguments, and format on save. By default, the executable
+path is `/usr/local/bin/ruff`, with no additional arguments, checking on change, and
+formatting on save.
 
 You could alter the executable path if Ruff installed in a different place
 or if `/usr/bin/env` usage is desirable.
