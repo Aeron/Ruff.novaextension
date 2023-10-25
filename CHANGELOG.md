@@ -2,6 +2,14 @@
 
 These versions follow [Semantic Versioning 2.0](https://semver.org).
 
+## 1.1.0 (2023-10-25)
+
+### Added
+
+- [Ruff Formatter][ruff-fmt] support.
+
+[ruff-fmt]: https://astral.sh/blog/the-ruff-formatter
+
 ## 1.0.1 (2023-10-25)
 
 ### Fixed
