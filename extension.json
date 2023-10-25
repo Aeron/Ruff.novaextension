@@ -53,7 +53,7 @@
         {
             "key": "cc.aeron.nova-ruff.commandArguments",
             "title": "Command Arguments",
-            "description": "Additional arguments. The --format and --quiet options are always set.",
+            "description": "Additional arguments. The --output-format and --quiet options are always set.",
             "type": "string",
             "default": null
         },
@@ -81,7 +81,7 @@
         {
             "key": "cc.aeron.nova-ruff.commandArguments",
             "title": "Command Arguments",
-            "description": "Additional arguments. The --format and --quiet options are always set.",
+            "description": "Additional arguments. The --output-format and --quiet options are always set.",
             "type": "string"
         },
         {
