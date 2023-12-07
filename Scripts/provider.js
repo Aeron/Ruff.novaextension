@@ -4,7 +4,7 @@ class IssuesProvider {
         this.issueCollection = issueCollection;
     }
 
-    async getProcess() {
+    async getProcess(fixable=null, select=null) {
         const executablePath = nova.path.expanduser(this.config.get("executablePath"));
         const commandArguments = this.config.get("commandArguments");
         const defaultOptions = ["--output-format=github", "--quiet", "-"];
@@ -13,6 +13,12 @@ class IssuesProvider {
             console.error(`Executable ${executablePath} does not exist`);
             return;
         }
+
+        const fixOptions = (fixable)
+            ? ["--fixable", fixable, "--fix"]
+            : (select)
+                ? ["--select", select, "--fix"]
+                : [];
 
         var options = [];
 
@@ -24,7 +30,9 @@ class IssuesProvider {
                 .filter((option) => option !== " ");
         }
 
-        options = [...options, ...defaultOptions].filter((option) => option !== "");
+        options = [...options, ...fixOptions, ...defaultOptions].filter(
+            (option) => option !== ""
+        );
 
         return new Process(
             executablePath,
@@ -49,7 +57,9 @@ class IssuesProvider {
 
         const textRange = new Range(0, editor.document.length);
         const content = editor.document.getTextInRange(textRange);
-        const filePath = nova.workspace.relativizePath(editor.document.path);
+        const filePath = (editor.document.path)
+            ? nova.workspace.relativizePath(editor.document.path)
+            : editor.document.uri;
 
         const parser = new IssueParser("ruff");
 
@@ -77,6 +87,57 @@ class IssuesProvider {
 
             resolve(parser.issues);
             parser.clear();
+        });
+
+        console.info("Running " + process.command + " " + process.args.join(" "));
+
+        process.start();
+
+        const writer = process.stdin.getWriter();
+
+        writer.ready.then(() => {
+            writer.write(content);
+            writer.close();
+        });
+    }
+
+    async fix(editor, fixable=null, select=null, resolve=null, reject=null) {
+        if (editor.document.isEmpty) {
+            if (reject) reject("empty file");
+            return;
+        }
+
+        const textRange = new Range(0, editor.document.length);
+        const content = editor.document.getTextInRange(textRange);
+        const filePath = (editor.document.path)
+            ? nova.workspace.relativizePath(editor.document.path)
+            : editor.document.uri;
+
+        const process = await this.getProcess(fixable, select);
+
+        if (!process) {
+            if (reject) reject("no process");
+            return;
+        }
+
+        let outBuffer = [];
+        let errBuffer = [];
+
+        process.onStdout((output) => outBuffer.push(output));
+        process.onStderr((error) => errBuffer.push(error));
+        process.onDidExit((status) => {
+            const fixedContent = outBuffer.join("");
+
+            let result = editor.edit((edit) => {
+                if (fixedContent !== content) {
+                    console.info("Fixing " + filePath);
+                    edit.replace(textRange, fixedContent, InsertTextFormat.PlainText);
+                } else {
+                    console.log("Nothing to fix");
+                }
+            });
+
+            if (resolve) resolve(result);
         });
 
         console.info("Running " + process.command + " " + process.args.join(" "));

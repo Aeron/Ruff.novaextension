@@ -33,7 +33,23 @@
                 "filters": {
                     "syntaxes": ["python"]
                 }
-            }
+            },
+            {
+                "title": "Fix Ruff Violations",
+                "command": "fixWithRuff",
+                "shortcut": "shift-cmd-opt-8",
+                "filters": {
+                    "syntaxes": ["python"]
+                }
+            },
+            {
+                "title": "Organize Imports with Ruff",
+                "command": "organizeWithRuff",
+                "shortcut": "shift-opt-O",
+                "filters": {
+                    "syntaxes": ["python"]
+                }
+            },
         ],
         "extensions": [
             {
@@ -102,7 +118,7 @@
         {
             "key": "cc.aeron.nova-ruff.executablePath",
             "title": "Executable Path",
-            "description": "Path to the Ruff executable.",
+            "description": "Path to the Ruff executable. Leave blank to use the extension default.",
             "type": "path",
             "placeholder": "/usr/local/bin/ruff"
         },
