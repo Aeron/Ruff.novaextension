@@ -49,7 +49,7 @@
                 "filters": {
                     "syntaxes": ["python"]
                 }
-            },
+            }
         ],
         "extensions": [
             {
