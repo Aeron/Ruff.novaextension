@@ -4,7 +4,7 @@ class IssuesProvider {
         this.issueCollection = issueCollection;
     }
 
-    async getProcess(fix=null) {
+    async getProcess(fixable=null, select=null) {
         const executablePath = nova.path.expanduser(this.config.get("executablePath"));
         const commandArguments = this.config.get("commandArguments");
         const defaultOptions = ["--output-format=github", "--quiet", "-"];
@@ -13,6 +13,12 @@ class IssuesProvider {
             console.error(`Executable ${executablePath} does not exist`);
             return;
         }
+
+        const fixOptions = (fixable)
+            ? ["--fixable", fixable, "--fix"]
+            : (select)
+                ? ["--select", select, "--fix"]
+                : [];
 
         var options = [];
 
@@ -24,13 +30,9 @@ class IssuesProvider {
                 .filter((option) => option !== " ");
         }
 
-        if (fix) {
-            options.push("--select")
-            options.push(fix)
-            options.push("--fix");
-        }
-
-        options = [...options, ...defaultOptions].filter((option) => option !== "");
+        options = [...options, ...fixOptions, ...defaultOptions].filter(
+            (option) => option !== ""
+        );
 
         return new Process(
             executablePath,
@@ -55,6 +57,9 @@ class IssuesProvider {
 
         const textRange = new Range(0, editor.document.length);
         const content = editor.document.getTextInRange(textRange);
+        const filePath = (editor.document.path)
+            ? nova.workspace.relativizePath(editor.document.path)
+            : editor.document.uri;
 
         const parser = new IssueParser("ruff");
 
@@ -68,9 +73,7 @@ class IssuesProvider {
         process.onStdout((output) => parser.pushLine(output));
         process.onStderr((error) => console.error(error));
         process.onDidExit((status) => {
-            if (editor.document.path) {
-                console.info("Checking " + editor.document.path);
-            }
+            console.info("Checking " + filePath);
 
             // NOTE: Nova version 1.2 and prior has a known bug
             if (nova.version[0] === 1 && nova.version[1] <= 2) {
@@ -98,35 +101,43 @@ class IssuesProvider {
         });
     }
 
-    async fix(editor, select="ALL") {
+    async fix(editor, fixable=null, select=null, resolve=null, reject=null) {
         if (editor.document.isEmpty) {
+            if (reject) reject("empty file");
             return;
         }
 
         const textRange = new Range(0, editor.document.length);
         const content = editor.document.getTextInRange(textRange);
+        const filePath = (editor.document.path)
+            ? nova.workspace.relativizePath(editor.document.path)
+            : editor.document.uri;
 
-        const process = await this.getProcess(select);
+        const process = await this.getProcess(fixable, select);
 
         if (!process) {
+            if (reject) reject("no process");
             return;
         }
 
-        var fixedOutput = [];
+        let outBuffer = [];
+        let errBuffer = [];
 
-        process.onStdout((output) => fixedOutput.push(output));
-        process.onStderr((error) => console.error(error));
+        process.onStdout((output) => outBuffer.push(output));
+        process.onStderr((error) => errBuffer.push(error));
         process.onDidExit((status) => {
-            if (editor.document.path) {
-                console.info("Fixing " + editor.document.path);
-            }
+            const fixedContent = outBuffer.join("");
 
-            const newContent = fixedOutput.join("");
             let result = editor.edit((edit) => {
-                if (newContent !== content) {
-                    edit.replace(textRange, newContent, InsertTextFormat.PlainText);
+                if (fixedContent !== content) {
+                    console.info("Fixing " + filePath);
+                    edit.replace(textRange, fixedContent, InsertTextFormat.PlainText);
+                } else {
+                    console.log("Nothing to fix");
                 }
             });
+
+            if (resolve) resolve(result);
         });
 
         console.info("Running " + process.command + " " + process.args.join(" "));

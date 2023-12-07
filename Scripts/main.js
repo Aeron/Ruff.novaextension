@@ -49,9 +49,9 @@ exports.activate = function() {
         "formatWorkspaceWithRuff", formatter.formatWorkspace, formatter
     );
     nova.commands.register("fixWithRuff", (editor) => {
-        issuesProvider.fix(editor);
+        issuesProvider.fix(editor, "ALL", null);
     });
     nova.commands.register("organizeWithRuff", (editor) => {
-        issuesProvider.fix(editor, "I001");
+        issuesProvider.fix(editor, null, "I001");
     });
 }
