@@ -2,9 +2,19 @@
 
 These versions follow [Semantic Versioning 2.0](https://semver.org).
 
-## 1.0.1 (2023-mm-dd)
+## 1.1.0 (2023-10-25)
 
-- Added `Fix Ruff Violations` and `Organize Imports with Ruff` commands (by @dcwatson in #1)
+### Added
+
+- [Ruff Formatter][ruff-fmt] support.
+
+[ruff-fmt]: https://astral.sh/blog/the-ruff-formatter
+
+## 1.0.1 (2023-10-25)
+
+### Fixed
+
+- The formatting option name (was `--format`; now `--output-format`).
 
 ## 1.0.0 (2023-05-28)
 

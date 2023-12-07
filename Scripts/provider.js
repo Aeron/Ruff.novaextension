@@ -7,7 +7,7 @@ class IssuesProvider {
     async getProcess(fix=null) {
         const executablePath = nova.path.expanduser(this.config.get("executablePath"));
         const commandArguments = this.config.get("commandArguments");
-        const defaultOptions = ["--format=github", "--quiet", "-"];
+        const defaultOptions = ["--output-format=github", "--quiet", "-"];
 
         if (!nova.fs.stat(executablePath)) {
             console.error(`Executable ${executablePath} does not exist`);
