@@ -1,10 +1,9 @@
 const Config = require("./config");
-const IssuesProvider = require("./provider");
+const IssueProvider = require("./provider");
 const Formatter = require("./Formatter");
 
 exports.activate = function () {
-    const issueCollection = new IssueCollection("ruff");
-    const issuesProvider = new IssuesProvider(Config, issueCollection);
+    const issueProvider = new IssueProvider(Config);
     const formatter = new Formatter(Config);
 
     console.info(`Executable path: ${Config.executablePath()}`);
@@ -26,16 +25,14 @@ exports.activate = function () {
 
             if (checkMode !== "-") {
                 assistant = nova.assistants.registerIssueAssistant(
-                    "python", issuesProvider, { "event": checkMode }
+                    "python", issueProvider, { "event": checkMode }
                 );
             }
         });
     }
 
     nova.commands.register("checkWithRuff", (editor) => {
-        issuesProvider.check(editor, (issues) => {
-            issueCollection.set(editor.document.uri, issues);
-        });
+        issueProvider.check(editor);
     });
 
     nova.workspace.onDidAddTextEditor((editor) => {
@@ -48,9 +45,9 @@ exports.activate = function () {
         "formatWorkspaceWithRuff", formatter.formatWorkspace, formatter
     );
     nova.commands.register("fixWithRuff", (editor) => {
-        issuesProvider.fix(editor, "ALL", null);
+        issueProvider.fix(editor, "ALL", null);
     });
     nova.commands.register("organizeWithRuff", (editor) => {
-        issuesProvider.fix(editor, null, "I001");
+        issueProvider.fix(editor, null, "I001");
     });
 }

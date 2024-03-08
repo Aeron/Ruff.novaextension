@@ -1,7 +1,7 @@
-class IssuesProvider {
-    constructor(config, issueCollection) {
+class IssueProvider {
+    constructor(config) {
         this.config = config;
-        this.issueCollection = issueCollection;
+        this.issueCollection = new IssueCollection("ruff");
         this.parser = new IssueParser("ruff");
     }
 
@@ -46,7 +46,6 @@ class IssuesProvider {
     }
 
     provideIssues(editor) {
-        this.issueCollection.clear();
         return new Promise((resolve, reject) => this.check(editor, resolve, reject));
     }
 
@@ -84,8 +83,14 @@ class IssuesProvider {
 
             console.info(`Found ${this.parser.issues.length} issue(s)`);
 
-            resolve(this.parser.issues);
+            this.issueCollection.set(editor.document.uri, this.parser.issues);
             this.parser.clear();
+
+            // HACK: nova.assistants.registerIssueAssistant uses its own private and
+            // nameless IssueCollection, and that leads to issue duplication between
+            // the command and on-save check. So, we give it nothing, and keep using
+            // our explicit IssueCollection.
+            if (resolve) resolve();
         });
 
         console.info(`Running ${process.command} ${process.args.join(" ")}`);
@@ -152,4 +157,4 @@ class IssuesProvider {
     }
 }
 
-module.exports = IssuesProvider;
+module.exports = IssueProvider;
