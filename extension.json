@@ -3,7 +3,7 @@
     "name": "Ruff",
     "organization": "Aeron",
     "description": "Ruff, an extremely fast Python linter (and formatter), written in Rust, for Nova.",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "categories": [
         "issues",
         "commands",
