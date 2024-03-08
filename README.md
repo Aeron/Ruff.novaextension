@@ -36,15 +36,3 @@ the first argument.
 The extension respects `pyproject.toml`, `ruff.toml`, and `.ruff.toml` in a project
 directory as much as `ruff` command-line utility. So, there’s no need to specify the
 `--config` argument explicitly.
-
-## Caveats
-
-### Using mixed mode
-
-In case you’re using the check on change/save mode, the command is still available
-to use. So, if you try to use command after a check triggered by a related event, and
-there are any errors, then discovered issues become duplicated in the Issues sidebar.
-
-Yet, it’ll come to normal as soon as a related event triggers again.
-
-Hopefully, I’ll find a way to fix it later.
