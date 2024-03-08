@@ -3,12 +3,12 @@ class Formatter {
         this.config = config;
     }
 
-    async getProcess(filename = null) {
-        const executablePath = nova.path.expanduser(this.config.get("executablePath"));
-        const commandArguments = this.config.get("commandFormatArguments");
+    getProcess(filename = null) {
+        const executablePath = nova.path.expanduser(this.config.executablePath());
+        const commandArguments = this.config.commandFormatArguments();
         const defaultOptions = (filename)
             ? (filename !== ".")
-                ? ["--quiet", `--stdin-filename=${filename}`,  "-"]
+                ? ["--quiet", `--stdin-filename=${filename}`, "-"]
                 : ["--quiet", filename]
             : ["--quiet", "-"];
 
@@ -39,21 +39,17 @@ class Formatter {
         );
     }
 
-    async getPromiseToFormat(editor) {
-        if (!this.config.get("formatOnSave")) return;
-
-        return new Promise((resolve, reject) => {
-            this.format(editor, resolve, reject);
-        });
+    provideFormat(editor) {
+        return new Promise((resolve, reject) => this.format(editor, resolve, reject));
     }
 
-    async format(editor, resolve=null, reject=null) {
+    format(editor, resolve = null, reject = null) {
         if (editor.document.isEmpty) {
             if (reject) reject("empty file");
             return;
         }
 
-        let process = await this.getProcess(
+        let process = this.getProcess(
             editor.document.path ? nova.path.basename(editor.document.path) : null
         );
 
@@ -103,8 +99,8 @@ class Formatter {
         });
     }
 
-    async formatWorkspace(workspace) {
-        let process = await this.getProcess(".");
+    formatWorkspace() {
+        let process = this.getProcess(".");
 
         if (!process) {
             return;
