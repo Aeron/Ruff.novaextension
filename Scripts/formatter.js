@@ -3,36 +3,41 @@ class Formatter {
         this.config = config;
     }
 
-    getProcess(filename = null) {
-        const executablePath = nova.path.expanduser(this.config.executablePath());
-        const commandArguments = this.config.commandFormatArguments();
+    getProcessOptions(filename = null) {
         const defaultOptions = (filename)
             ? (filename !== ".")
                 ? ["--quiet", `--stdin-filename=${filename}`, "-"]
                 : ["--quiet", filename]
             : ["--quiet", "-"];
 
+        const commandArguments = this.config.commandFormatArguments();
+        const extraOptions = (commandArguments)
+            ? commandArguments
+                .split("\n")
+                .map((option) => option.trim())
+            : [];
+
+        return Array.from(
+            new Set(
+                [...extraOptions, ...defaultOptions].filter((option) => option !== "")
+            )
+        );
+    }
+
+    getProcess(filename = null) {
+        const executablePath = nova.path.expanduser(this.config.executablePath());
+
         if (!nova.fs.stat(executablePath)) {
             console.error(`Executable ${executablePath} does not exist`);
             return;
         }
 
-        var options = [];
-
-        if (commandArguments) {
-            options = commandArguments
-                .replaceAll("\n", " ")
-                .split(" ")
-                .map((option) => option.trim())
-                .filter((option) => option !== " ");
-        }
-
-        options = [...options, ...defaultOptions].filter((option) => option !== "");
+        const options = this.getProcessOptions(filename);
 
         return new Process(
             executablePath,
             {
-                args: ["format", ...Array.from(new Set(options))],
+                args: ["format", ...options],
                 stdio: "pipe",
                 cwd: nova.workspace.path,  // NOTE: must be explicitly set
             }
