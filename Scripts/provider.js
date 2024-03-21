@@ -1,3 +1,5 @@
+const utils = require("./utils");
+
 class IssueProvider {
     constructor(config) {
         this.config = config;
@@ -5,40 +7,34 @@ class IssueProvider {
         this.parser = new IssueParser("ruff");
     }
 
+    getProcessOptions(fixable = null, select = null) {
+        const defaultOptions = ["--output-format=github", "--quiet", "-"];
+        const commandArguments = this.config.commandArguments();
+        const extraOptions = utils.normalizeOptions(commandArguments);
+
+        const fixOptions = (fixable)
+            ? [`--fixable=${fixable}`, "--fix"]
+            : (select)
+                ? [`--select=${select}`, "--fix"]
+                : [];
+
+        return Array.from(new Set([...extraOptions, ...fixOptions, ...defaultOptions]));
+    }
+
     getProcess(fixable = null, select = null) {
         const executablePath = nova.path.expanduser(this.config.executablePath());
-        const commandArguments = this.config.commandArguments();
-        const defaultOptions = ["--output-format=github", "--quiet", "-"];
 
         if (!nova.fs.stat(executablePath)) {
             console.error(`Executable ${executablePath} does not exist`);
             return;
         }
 
-        const fixOptions = (fixable)
-            ? ["--fixable", fixable, "--fix"]
-            : (select)
-                ? ["--select", select, "--fix"]
-                : [];
-
-        var options = [];
-
-        if (commandArguments) {
-            options = commandArguments
-                .replaceAll("\n", " ")
-                .split(" ")
-                .map((option) => option.trim())
-                .filter((option) => option !== " ");
-        }
-
-        options = [...options, ...fixOptions, ...defaultOptions].filter(
-            (option) => option !== ""
-        );
+        const options = this.getProcessOptions(fixable, select);
 
         return new Process(
             executablePath,
             {
-                args: ["check", ...Array.from(new Set(options))],
+                args: ["check", ...options],
                 stdio: "pipe",
                 cwd: nova.workspace.path,  // NOTE: must be explicitly set
             }
@@ -120,7 +116,6 @@ class IssueProvider {
         const process = this.getProcess(fixable, select);
 
         if (!process) {
-            if (reject) reject("no process");
             return;
         }
 
@@ -140,8 +135,6 @@ class IssueProvider {
                     console.log("Nothing to fix");
                 }
             });
-
-            if (resolve) resolve(result);
         });
 
         console.info(`Running ${process.command} ${process.args.join(" ")}`);
