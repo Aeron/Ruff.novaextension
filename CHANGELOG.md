@@ -2,6 +2,18 @@
 
 These versions follow [Semantic Versioning 2.0](https://semver.org).
 
+## 1.2.3 (2024-03-21)
+
+This patch contains two fixes for user options: one for a stupid typo and another for
+potential issues with deduplication, uniformity, etc. And one another fix for some
+overlooked leftovers of a previous implementation.
+
+### Fixed
+
+- Command arguments’ separator character typo
+- Commands’ long and short user options handling
+- `Fix` command’s residue `resolve`/`reject` calls
+
 ## 1.2.2 (2024-03-08)
 
 ### Fixed
