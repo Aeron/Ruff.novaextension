@@ -1,6 +1,6 @@
 function normalizeOptions(args) {
     const options = (args)
-        ? commandArguments
+        ? args
             .replaceAll("\n", " ") // NOTE: a string config key can contain newlines
             .split(" ")
             .map((option) => option.trim())
