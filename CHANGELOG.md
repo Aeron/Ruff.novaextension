@@ -2,6 +2,12 @@
 
 These versions follow [Semantic Versioning 2.0](https://semver.org).
 
+## 1.2.4 (2024-03-21)
+
+### Fixed
+
+- Command’s user options normalization fix
+
 ## 1.2.3 (2024-03-21)
 
 This patch contains two fixes for user options: one for a stupid typo and another for
