@@ -1,3 +1,5 @@
+const utils = require("./utils");
+
 class Formatter {
     constructor(config) {
         this.config = config;
@@ -11,17 +13,9 @@ class Formatter {
             : ["--quiet", "-"];
 
         const commandArguments = this.config.commandFormatArguments();
-        const extraOptions = (commandArguments)
-            ? commandArguments
-                .split("\n")
-                .map((option) => option.trim())
-            : [];
+        const extraOptions = utils.normalizeOptions(commandArguments);
 
-        return Array.from(
-            new Set(
-                [...extraOptions, ...defaultOptions].filter((option) => option !== "")
-            )
-        );
+        return Array.from(new Set([...extraOptions, ...defaultOptions]));
     }
 
     getProcess(filename = null) {
